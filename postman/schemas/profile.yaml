@@ -1,0 +1,707 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Profile API'
+servers:
+  - url: 'localhost:8080'
+paths:
+  /v1/profiles:
+    post:
+      summary: 'Create a profile'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/NewProfile'
+      responses:
+        '200':
+          description: 'Details about a created profile'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/profiles/{id}:
+    get:
+      summary: 'Return details about a particular profile'
+      parameters:
+        - name: id
+          in: path
+          description: ID of the profile
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Details about a profile by ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: 'Update a profile'
+      parameters:
+          - name: id
+            in: path
+            schema:
+              type: integer
+            required: true
+            description: Numeric ID of the profile to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatedProfile'
+      responses:
+        '200':
+          description: 'Details about an updated profile'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'  
+
+    delete:
+      summary: 'Delete a profile'
+      parameters:
+          - name: id
+            in: path
+            schema:
+              type: integer
+            required: true
+            description: Numeric ID of the profile to delete
+      responses:
+        '200':
+          description: 'Empty object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyObject'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/profiles/count:
+    post:
+      summary: 'Retrieves the number of profiles which satisfy condition'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Condition'
+      responses:
+        '200':
+          description: 'The number of profiles which satisfy condition'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: integer
+        
+  /v1/profiles/search:
+    post:
+      summary: 'Retrieves profiles matching the specified query.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Query'
+      responses:
+        '200':
+          description: 'Profile list which satisfies condition'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilePartialList'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'         
+
+  /v1/profiles/batchUpdateByCondition:
+    post:
+      summary: 'Batch update profiles by condition specification'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                updatedProperties:
+                  $ref: '#/components/schemas/UpdatedProperties'
+                condition:
+                  $ref: '#/components/schemas/Condition'
+      responses:
+        '200':
+          description: 'Empty object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyObject'
+
+  /v1/profiles/batchUpdate:
+    post:
+      summary: 'Batch update profiles specification'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdatedProfile'
+      responses:
+        '200':
+          description: 'Empty object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyObject'
+  
+  /v1/profiles/batchCreate:
+    post:
+      summary: 'Batch create profiles specification'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: 'Empty object'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptyObject'
+
+components:
+  schemas:
+    GoogleMap:
+      type: object
+      additionalProperties: false
+      properties:
+        lat:
+          type: number
+          format: double
+          minimum: 0
+        long:
+          type: number
+          format: double
+          minimum: 0
+    Location:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        company_name:
+          type: string
+        phone_number:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        district:
+          type: string
+        sub_district:
+          type: string
+        detail_address:
+          type: string
+        address_type:
+          type: string
+        zipcode:
+          type: string
+        default_address:
+          type: boolean
+        google_map:
+          type: object
+          $ref: '#/components/schemas/GoogleMap'
+    # NewProfile do not include id
+    NewProfile:
+      type: object
+      additionalProperties: false
+      properties:
+        locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        visitor_id:
+          type: string
+        database_id:
+          type: string
+        facebook_id:
+          type: string
+        google_id:
+          type: string
+        current_funnel_stage:
+          type: string
+        profile_type:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        loyalty_point:
+          type: integer
+          format: int64
+          minimum: 1
+        labels:
+          type: array
+          items:
+            type: string
+        segments:
+          type: array
+          items:
+            type: string
+        lead_score:
+          type: integer
+          format: int64
+          minimum: 1
+        lead_score_change_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        created_date:
+          type: string
+          format: date-time
+        updated_date:
+          type: string
+          format: date-time
+        primary_email:
+          type: string
+        primary_phone_number:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        full_name:
+          type: string
+        nickname:
+          type: array
+          items:
+            type: string
+        gender:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        age:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        date_of_birth:
+          type: string
+          format: date-time
+        race:
+          type: string
+        religion:
+          type: string
+        nationality:
+          type: string
+        language:
+          type: string
+        timezone:
+          type: string
+        citizen_ids:
+          type: array
+          items:
+            type: string
+        passport_ids:
+          type: array
+          items:
+            type: string
+        additional_emails:
+          type: string
+        additional_phone_numbers:
+          type: string
+        social_network_profiles:
+          type: array
+          items:
+            type: string
+        education_level:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        education_and_schools:
+          type: array
+          items:
+            type: string
+        family_status:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        job_titles:
+          type: array
+          items:
+            type: string
+        company_names:
+          type: array
+          items:
+            type: string
+        company_aliases:
+          type: array
+          items:
+            type: string
+        company_ids:
+          type: array
+          items:
+            type: string
+        credit_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        monthly_income:
+          type: number
+          format: double
+          minimum: 0
+        annual_income:
+          type: number
+          format: double
+          minimum: 0
+        number_of_dependants:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        number_of_open_credit_lines_and_loans:
+          type: number
+          format: double
+          minimum: 0
+        number_real_estate_loans_or_lines:
+          type: number
+          format: double
+          minimum: 0
+        lifestyles:
+          type: array
+          items:
+            type: string
+        social_status:
+          type: array
+          items:
+            type: string
+        personality:
+          type: array
+          items:
+            type: string
+        hobbies:
+          type: array
+          items:
+            type: string
+        attitudes:
+          type: array
+          items:
+            type: string
+        interests:
+          type: array
+          items:
+            type: string
+        engaged_touch_points:
+          type: array
+          items:
+            type: string
+        reachable_media_channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        content_marketing_keywords:
+          type: array
+          items:
+            type: string
+        personal_problem_and_pain_points:
+          type: array
+          items:
+            type: string
+        solutions_for_customer:
+          type: array
+          items:
+            type: string
+        online_shopping_habits:
+          type: array
+          items:
+            type: string
+        timing_based_behaviour:
+          type: string
+        actions_taken_on_web_app:
+          type: array
+          items:
+            type: string
+        abandoned_cart:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        interested_products:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        recommended_products:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        purchased_products:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        customer_feedbacks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        customer_support_tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        number_of_sessions:
+          type: integer
+          format: int64
+          minimum: 1
+        number_of_pages_visited:
+          type: integer
+          format: int64
+          minimum: 1
+        time_spent_on_site:
+          type: integer
+          format: int64
+          minimum: 1
+        visited_urls:
+          type: array
+          items:
+            type: string
+        visited_page_types:
+          type: array
+          items:
+            type: string
+        shopping_cart_value:
+          type: integer
+          format: int64
+          minimum: 1
+        campaign_history:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        referral_source:
+          type: array
+          items:
+            type: string
+        exit_intent:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        inactivity_time:
+          type: integer
+          format: int64
+          minimum: 1
+        industry:
+          type: string
+        company_size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        number_of_employees:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        status_and_structure:
+          type: string
+        performance:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+        account_id:
+          type: integer
+          format: int64
+          minimum: 1
+        workspace_id:
+          type: integer
+          format: int64
+          minimum: 1
+        source_id:
+          type: integer
+          format: int64
+          minimum: 1
+        source_type:
+          type: string
+        import_id:
+          type: integer
+          format: int64
+          minimum: 1
+        archived:
+          type: boolean
+        email_status:
+          type: string
+        external_id:
+          type: integer
+          format: int64
+          minimum: 1
+        first_visit:
+          type: string
+          format: date-time
+        last_visit:
+          type: string
+          format: date-time
+        number_of_visits:
+          type: integer
+          format: int64
+          minimum: 1
+        previous_visit:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 32767
+        subscribed_at:
+          type: string
+          format: date-time
+        custom_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DynamicObject'
+    Profile:
+      type: object
+      required:
+        - id
+      additionalProperties: false
+      allOf:
+        - $ref: '#/components/schemas/NewProfile'
+        - type: object
+          properties:
+            id:
+              type: string
+    UpdateStrategy:
+      type: object
+      properties:
+        append:
+          type: string
+        addition:
+          type: string
+        override:
+          type: string
+    UpdatedProfile:
+      type: object
+      required:
+        - profile
+      properties:
+        profile:
+          type: object
+          $ref: '#/components/schemas/Profile'       
+        updateStrategy:
+          type: object
+          $ref: '#/components/schemas/UpdateStrategy' 
+    Condition:
+      type: object
+      properties:
+        type:
+          type: string
+        parameterValues:
+          type: object
+          additionalProperties: true
+    Query:
+      type: object
+      properties:
+        offset:
+          type: integer
+        limit:
+          type: integer
+        sortBy:
+          type: string
+        text:
+          type: string
+        foreceRefresh:
+          type: boolean
+        condition:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+    ProfilePartialList:
+      type: object
+      properties:
+        offset:
+          type: integer
+        pageSize:
+          type: integer
+        totalSize:
+          type: integer
+        scrollIdentifier:
+          type: string
+        scrollTimeValidity:
+          type: string
+        totalSizeRelation:
+          type: string
+          enum:
+            - EQUAL
+            - GREATER_THAN_OR_EQUAL_TO
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+    UpdatedProperties:
+      type: object
+      properties:
+        properties:
+          type: array
+          items:
+            type: object
+            properties:
+              propertyName:
+                type: string
+              propertyValue:
+                type: object
+        updateStrategy:
+          $ref: '#/components/schemas/UpdateStrategy'
+    DynamicObject:
+      type: object
+      additionalProperties: true
+    EmptyObject:
+      type: object
+      additionalProperties: false
+      minProperties: 0
+      maxProperties: 0
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
