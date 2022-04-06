@@ -13,7 +13,7 @@ paths:
         content:
           application/json:
             schema:
-                $ref: '#/components/schemas/NewProfile'
+                $ref: '#/components/schemas/NewOrUpdatedProfile'
       responses:
         '200':
           description: 'Details about a created profile'
@@ -60,7 +60,7 @@ paths:
             schema:
               type: integer
             required: true
-            description: Numeric ID of the profile to update
+            description: String ID of the profile to update
       requestBody:
         required: true
         content:
@@ -89,7 +89,7 @@ paths:
             schema:
               type: integer
             required: true
-            description: Numeric ID of the profile to delete
+            description: String ID of the profile to delete
       responses:
         '200':
           description: 'Empty object'
@@ -221,6 +221,7 @@ components:
           type: number
           format: double
           minimum: 0
+
     Location:
       type: object
       additionalProperties: false
@@ -250,8 +251,9 @@ components:
         google_map:
           type: object
           $ref: '#/components/schemas/GoogleMap'
-    # NewProfile do not include id
-    NewProfile:
+
+    # NewOrUpdatedProfile do not include id
+    NewOrUpdatedProfile:
       type: object
       additionalProperties: false
       properties:
@@ -294,10 +296,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DynamicObject'
-        created_date:
+        created_at:
           type: string
           format: date-time
-        updated_date:
+        updated_at:
           type: string
           format: date-time
         primary_email:
@@ -567,9 +569,7 @@ components:
         email_status:
           type: string
         external_id:
-          type: integer
-          format: int64
-          minimum: 1
+          type: string
         first_visit:
           type: string
           format: date-time
@@ -595,37 +595,102 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DynamicObject'
+
     Profile:
       type: object
       required:
         - id
       additionalProperties: false
       allOf:
-        - $ref: '#/components/schemas/NewProfile'
+        - $ref: '#/components/schemas/NewOrUpdatedProfile'
         - type: object
           properties:
             id:
               type: string
+
+    CanAppend:
+      type: string
+      enum:
+        - labels
+        - segments
+        - lead_score_change_history
+        - nickname
+        - citizen_ids
+        - passport_ids
+        - social_network_profiles
+        - education_and_schools
+        - job_titles
+        - company_names
+        - company_aliases
+        - company_ids
+        - credit_history
+        - lifestyles
+        - social_status
+        - personality
+        - hobbies
+        - attitudes
+        - interests
+        - engaged_touch_points
+        - reachable_media_channels
+        - content_marketing_keywords
+        - personal_problem_and_pain_points
+        - solutions_for_customer
+        - online_shopping_habits
+        - actions_taken_on_web_app
+        - abandoned_cart
+        - interested_products
+        - recommended_products
+        - purchased_products
+        - customer_feedbacks
+        - customer_support_tickets
+        - visited_urls
+        - visited_page_types
+        - campaign_history
+        - referral_source
+        - exit_intent
+        - performance
+        - custom_fields
+
+    CanAdd:
+      type: string
+      enum:
+        - loyalty_point
+        - lead_score
+        - monthly_income
+        - annual_income
+        - number_of_open_credit_lines_and_loans
+        - number_real_estate_loans_or_lines
+        - number_of_sessions
+        - number_of_pages_visited
+        - time_spent_on_site
+        - shopping_cart_value
+        - inactivity_time
+        - number_of_visits
+
     UpdateStrategy:
       type: object
       properties:
         append:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/CanAppend'
         addition:
-          type: string
-        override:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/CanAdd'
+
     UpdatedProfile:
       type: object
       required:
-        - profile
+        - properties
       properties:
-        profile:
+        properties:
           type: object
-          $ref: '#/components/schemas/Profile'       
+          $ref: '#/components/schemas/NewOrUpdatedProfile'       
         updateStrategy:
           type: object
           $ref: '#/components/schemas/UpdateStrategy' 
+
     Condition:
       type: object
       properties:
@@ -634,6 +699,7 @@ components:
         parameterValues:
           type: object
           additionalProperties: true
+
     Query:
       type: object
       properties:
@@ -651,6 +717,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Condition'
+
     ProfilePartialList:
       type: object
       properties:
@@ -673,6 +740,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Profile'
+
     UpdatedProperties:
       type: object
       properties:
@@ -687,14 +755,17 @@ components:
                 type: object
         updateStrategy:
           $ref: '#/components/schemas/UpdateStrategy'
+
     DynamicObject:
       type: object
       additionalProperties: true
+
     EmptyObject:
       type: object
       additionalProperties: false
       minProperties: 0
       maxProperties: 0
+
     Error:
       type: object
       required:
