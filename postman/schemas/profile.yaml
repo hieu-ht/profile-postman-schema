@@ -252,6 +252,7 @@ components:
           type: object
           $ref: '#/components/schemas/GoogleMap'
 
+
     # NewOrUpdatedProfile do not include id
     NewOrUpdatedProfile:
       type: object
@@ -714,9 +715,8 @@ components:
         foreceRefresh:
           type: boolean
         condition:
-          type: array
-          items:
-            $ref: '#/components/schemas/Condition'
+          type: object
+          $ref: '#/components/schemas/Condition'
 
     ProfilePartialList:
       type: object
@@ -727,10 +727,6 @@ components:
           type: integer
         totalSize:
           type: integer
-        scrollIdentifier:
-          type: string
-        scrollTimeValidity:
-          type: string
         totalSizeRelation:
           type: string
           enum:
