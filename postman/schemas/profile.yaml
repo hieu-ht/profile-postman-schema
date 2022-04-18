@@ -252,8 +252,6 @@ components:
           type: object
           $ref: '#/components/schemas/GoogleMap'
 
-
-    # NewOrUpdatedProfile do not include id
     NewOrUpdatedProfile:
       type: object
       additionalProperties: false
@@ -273,10 +271,8 @@ components:
         current_funnel_stage:
           type: string
         profile_type:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+          type: string
+          $ref: '#/components/schemas/ProfileType'
         loyalty_point:
           type: integer
           format: int64
@@ -318,10 +314,8 @@ components:
           items:
             type: string
         gender:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+          type: string
+          $ref: '#/components/schemas/Gender'
         age:
           type: integer
           format: int32
@@ -357,19 +351,15 @@ components:
           items:
             type: string
         education_level:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+          type: string
+          $ref: '#/components/schemas/EducationLevel'
         education_and_schools:
           type: array
           items:
             type: string
-        family_status:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+        marital_status:
+          type: string
+          $ref: '#/components/schemas/MaritalStatus'
         job_titles:
           type: array
           items:
@@ -532,15 +522,11 @@ components:
         industry:
           type: string
         company_size:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+          type: string
+          $ref: '#/components/schemas/CompanySize'
         number_of_employees:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 32767
+          type: string
+          $ref: '#/components/schemas/NumberOfEmployees'
         status_and_structure:
           type: string
         performance:
@@ -596,6 +582,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DynamicObject'
+
 
     Profile:
       type: object
@@ -668,6 +655,72 @@ components:
         - inactivity_time
         - number_of_visits
 
+    ProfileType:
+      type: string
+      enum:
+        - ANONYMOUS_WEB_VISITOR
+        - SSO_LOGIN_CONTACT
+        - BUSINESS_CONTACT
+        - STUDENT_CONTACT
+        - CRM_IMPORTED_CONTACT
+        - DIRECT_INPUT_CONTACT
+        - INFLUENCER_CONTACT
+        - CLIENT_CONTACT
+        - PARTNER_CONTACT
+        - EMPLOYEE_CONTACT
+        - KEY_ACCOUNT_CONTACT
+    
+    EducationLevel:
+      type: string
+      enum:
+        - NO_SCHOOLING
+        - EARLY_CHILDHOOD_EDUCATION
+        - PRIMARY_EDUCATION
+        - LOWER_SECONDARY_EDUCATION
+        - UPPER_SECONDARY_EDUCATION
+        - POST_SECONDARY_NON_TERTIARY_EDUCATION
+        - SHORT_CYCLE_TERTIARY_EDUCATION
+        - BACHELOR_OR_EQUIVALENT_LEVEL
+        - MASTER_OR_EQUIVALENT_LEVEL
+        - DOCTORAL_OR_EQUIVALENT_LEVEL
+        - NOT_ELSEWHERE_CLASSIFIED
+    
+    MaritalStatus:
+      type: string
+      enum:
+        - MARRIAGE
+        - SINGLE
+        - DIVORCE
+        - WIDOWED
+
+    CompanySize:
+      type: string
+      enum:
+        - MICRO
+        - SMALL
+        - MEDIUM
+        - LARGE
+
+    NumberOfEmployees:
+      type: string
+      enum:
+        - SELF_EMPLOYED
+        - EMPLOYEES_1_10
+        - EMPLOYEES_11_50
+        - EMPLOYEES_51_200
+        - EMPLOYEES_201_500
+        - EMPLOYEES_501_1000
+        - EMPLOYEES_1001_5000
+        - EMPLOYEES_5001_10_000
+        - EMPLOYEES_GREATER_THAN_10000
+      
+    Gender:
+      type: string
+      enum:
+        - FEMALE
+        - MALE
+        - UNKNOWN
+
     UpdateStrategy:
       type: object
       properties:
@@ -718,7 +771,7 @@ components:
           type: object
           $ref: '#/components/schemas/Condition'
 
-    ProfilePartialList:
+    PartialList:
       type: object
       properties:
         offset:
@@ -732,10 +785,16 @@ components:
           enum:
             - EQUAL
             - GREATER_THAN_OR_EQUAL_TO
-        list:
-          type: array
-          items:
-            $ref: '#/components/schemas/Profile'
+
+    ProfilePartialList:
+      allOf:
+        - $ref: '#/components/schemas/PartialList'
+        - type: object
+          properties:
+            list:
+              type: array
+              items:
+                $ref: '#/components/schemas/Profile'
 
     UpdatedProperties:
       type: object
